@@ -1,0 +1,143 @@
+################ IMPORTS ######################
+import numpy as np
+from flask import Flask, render_template,request
+import joblib
+import nltk
+import re
+import json
+import twint
+import pandas as pd
+import matplotlib.pyplot as plt
+nltk.download('stopwords')
+nltk.download('rslp')
+#Initialize the flask App
+app = Flask(__name__)
+model = joblib.load('brimo_model.pkl')
+
+################# FLASK API ####################
+#default page of our web-app
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+#To use the predict button in our web-app
+@app.route('/classify',methods=['POST'])
+def classify():
+    #For rendering results on HTML GUI
+    tweet = request.form['tweet']
+    tweet = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
+    tweetStemming = []
+    stemmer = nltk.stem.RSLPStemmer()
+    for(palavras_treinamento) in tweet.split():
+        comStem = [p for p in palavras_treinamento.split()]
+        tweetStemming.append(str(stemmer.stem(comStem[0])))
+        
+    novo = extrator_palavras(tweetStemming)
+
+    distribuicao = model.prob_classify(novo)
+    output = ""
+    for classe in distribuicao.samples():
+        output = output + ('%s: %f' % (classe, distribuicao.prob(classe)))
+    return render_template('index.html', classificacao='Sentiment analysis :{}'.format(output))
+
+############## BRIMO #################
+def extrator_palavras(documento):
+    doc = set(documento)
+    caracteristicas = {}
+    for palavras in palavras_unicas_treinamento:
+        caracteristicas['%s' % palavras] = (palavras in doc)
+    return caracteristicas
+
+def busca_palavras_unicas(frequencia):
+    freq = frequencia.keys()
+    return freq
+
+def busca_frequencia(palavras):
+    palavras = nltk.FreqDist(palavras)
+    return palavras
+
+def busca_Palavras(frases):
+    todas_Palavras = []
+    for(palavras, sentimento) in frases:
+        todas_Palavras.extend(palavras)
+    return todas_Palavras
+
+def sentiment_Set(texto, words_emotions):
+    sent_counter = {'raiva': 0, 'tristeza': 0, 'nojo': 0, 'surpresa': 0, 'alegria': 0, 'medo': 0}
+    correct_sentiment_tweets = []
+    new_texto = []
+    for(palavras, sentimento) in texto:
+        for palavra in palavras:
+            for word in words_emotions:
+                if palavra == word['word']:
+                    sent_counter[word['emotion']]+= 1
+        
+        sentimento_new = max(sent_counter, key=sent_counter.get)
+        if sent_counter[sentimento_new] > 0:
+            if sent_counter[sentimento_new] > sent_counter[sentimento]:
+                  sentimento = sentimento_new
+        sent_counter = {'raiva': 0, 'tristeza': 0, 'nojo': 0, 'surpresa': 0, 'alegria': 0, 'medo': 0}
+        new_texto.append((palavras, sentimento))
+    return new_texto
+
+def aplica_Stemmer(texto):
+    stemmer = nltk.stem.RSLPStemmer()
+    # Escolhido o RSLPS pois é especifico da lingua portugesa
+    frases_sem_Stemming = []
+    for(palavras, sentimento) in texto:
+        com_Stemming = [str(stemmer.stem(p)) for p in palavras.split() if p not in lista_Stop]
+        frases_sem_Stemming.append((com_Stemming, sentimento))
+    return frases_sem_Stemming
+###########################
+emotions = ['raiva', 'nojo', 'alegria', 'medo', 'tristeza', 'surpresa'];
+with open('words_emotions.json') as f:
+    word_emotions = json.load(f)
+        
+stemmer = nltk.stem.RSLPStemmer()
+        
+format_word_emotions = []
+# Create json object with tweet and sentiment
+for word in word_emotions:
+    for emotion in emotions:
+        if word[emotion] == 1:
+            com_Stem = str(stemmer.stem(word['word']))
+            format_word_emotions.append({'word': com_Stem, 'emotion': emotion})
+###########################
+lista_Stop = nltk.corpus.stopwords.words('portuguese')
+
+sentiments = ['alegria', 'medo', 'tristeza', 'nojo', 'surpresa', 'raiva']
+base_treinamento = []
+
+for sentiment in sentiments:
+    inputjson_filename = '{sentiment_filename}.json'.format(sentiment_filename = sentiment)
+    outputjson_filename = '{sentiment_filename}_output.json'.format(sentiment_filename = sentiment)
+    
+    # Deserialize file to load json in data
+    with open(inputjson_filename) as f:
+        data = json.load(f)
+
+    # Filter python objects with list comprehensions
+    output_dict = [x for x in data if x['language'] == 'pt']
+
+    # Transform python object back into json
+    output_json = json.dumps(output_dict, ensure_ascii=False)
+
+    # Regex
+    pattern = r'(?<="tweet": )"(.*?)"'
+
+    # Get all regex matches
+    tweets = re.findall(pattern, output_json)
+    
+    for tweet in tweets:
+        tweet = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
+        tweet = ' '.join(word for word in tweet.split(' ') if not word.startswith('@'))
+        base_treinamento.append((tweet, sentiment))
+
+frases_com_Stem_treinamento = aplica_Stemmer(base_treinamento)
+frases_com_Stem_e_sentimentos_treinamento = sentiment_Set(frases_com_Stem_treinamento, format_word_emotions)
+palavras_treinamento = busca_Palavras(frases_com_Stem_e_sentimentos_treinamento)
+frequencia_treinamento = busca_frequencia(palavras_treinamento)
+palavras_unicas_treinamento = busca_palavras_unicas(frequencia_treinamento)
+
+if __name__ == "__main__":
+    app.run(debug=True)
