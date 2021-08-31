@@ -1,6 +1,7 @@
 <form action="{{ url_for('classify')}}" method="post">
-    <input type="text" name="tweet" placeholder="Insira tweet" required="required" />
-
+    <input type="text" name="keyword" placeholder="Insira palavra-chave" required="required" />
+    <input type="text" name="lang" placeholder="Insira lingua" required="required" />
+    <input type="text" name="limit" placeholder="Insira limite de tweets" required="required" />
     <button type="submit" class="btn">Classificar</button>
 </form>
 {{ classificacao }}

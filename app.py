@@ -1,5 +1,4 @@
 ################ IMPORTS ######################
-import numpy as np
 from flask import Flask, render_template,request
 import joblib
 import nltk
@@ -8,10 +7,12 @@ import json
 import twint
 import pandas as pd
 import matplotlib.pyplot as plt
+import datetime
 nltk.download('stopwords')
 nltk.download('rslp')
 #Initialize the flask App
 app = Flask(__name__)
+app.config['DEBUG'] = True
 model = joblib.load('brimo_model.pkl')
 
 ################# FLASK API ####################
@@ -23,23 +24,79 @@ def home():
 #To use the predict button in our web-app
 @app.route('/classify',methods=['POST'])
 def classify():
-    #For rendering results on HTML GUI
-    tweet = request.form['tweet']
-    tweet = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
-    tweetStemming = []
-    stemmer = nltk.stem.RSLPStemmer()
-    for(palavras_treinamento) in tweet.split():
-        comStem = [p for p in palavras_treinamento.split()]
-        tweetStemming.append(str(stemmer.stem(comStem[0])))
-        
-    novo = extrator_palavras(tweetStemming)
+    tweets = get_tweets(request.form['keyword'], request.form['lang'], request.form['limit']);
+    index = 0
+    distribuicao_tristeza = 0
+    distribuicao_alegria = 0
+    distribuicao_medo = 0
+    distribuicao_raiva = 0
+    distribuicao_surpresa = 0
+    distribuicao_nojo = 0
+    for tweet in tweets:
+        index = index + 1
+        tweet_without_special_chars = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
+        tweetStemming = []
+        stemmer = nltk.stem.RSLPStemmer()
+        for(palavras_treinamento) in tweet_without_special_chars.split():
+            comStem = [p for p in palavras_treinamento.split()]
+            tweetStemming.append(str(stemmer.stem(comStem[0])))
+            
+        novo = extrator_palavras(tweetStemming)
 
-    distribuicao = model.prob_classify(novo)
-    output = ""
-    for classe in distribuicao.samples():
-        output = output + ('%s: %f' % (classe, distribuicao.prob(classe)))
+        distribuicao = model.prob_classify(novo)
+        output = ""
+        for classe in distribuicao.samples():
+            if classe == "tristeza":
+                distribuicao_tristeza = distribuicao_tristeza + distribuicao.prob(classe)
+            elif classe == "alegria":
+                distribuicao_alegria = distribuicao_alegria + distribuicao.prob(classe)
+            elif classe == "medo":
+                distribuicao_medo = distribuicao_medo + distribuicao.prob(classe)
+            elif classe == "raiva":
+                distribuicao_raiva = distribuicao_raiva + distribuicao.prob(classe)
+            elif classe == "surpresa":
+                distribuicao_surpresa = distribuicao_surpresa + distribuicao.prob(classe)
+            else:
+                distribuicao_nojo = distribuicao_nojo + distribuicao.prob(classe)
+    
+    distribuicao_nojo = distribuicao_nojo / index
+    distribuicao_raiva = distribuicao_raiva / index
+    distribuicao_alegria = distribuicao_alegria / index
+    distribuicao_tristeza = distribuicao_tristeza / index
+    distribuicao_surpresa = distribuicao_surpresa / index
+    distribuicao_medo = distribuicao_medo / index
+
+    output = "tristeza: {}, nojo: {}, alegria: {}, surpresa: {}, medo: {}, raiva: {}".format(distribuicao_tristeza, distribuicao_nojo, distribuicao_alegria, distribuicao_surpresa, distribuicao_medo, distribuicao_raiva)
     return render_template('index.html', classificacao='Sentiment analysis :{}'.format(output))
 
+############## GET TWEETS ################
+def get_tweets(keyword, lang, limit):
+    c = twint.Config()
+    c.Search = keyword
+    c.Lowercase = True
+    c.Links = 'exclude'
+    c.Lang = lang
+    c.Filter_retweets = True
+    c.Limit = limit
+    c.Pandas = True
+
+    twint.run.Search(c)
+    tweets_df = twint.storage.panda.Tweets_df
+
+    tweets = []
+    tweets_for_classify = []
+
+    for index,tweet_df in tweets_df.iterrows():
+        tweets.append(tweet_df['tweet'])
+    
+    for tweet in tweets:
+        tweet = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
+        tweet = ' '.join(word for word in tweet.split(' ') if not word.startswith('@'))
+        tweets_for_classify.append(tweet)
+
+    return tweets_for_classify
+         
+    
 ############## BRIMO #################
 def extrator_palavras(documento):
     doc = set(documento)
