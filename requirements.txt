@@ -1,5 +1,4 @@
---index-url https://github.com/twintproject/twint.git@origin/master#egg=twint
-twint==2.1.21
+pip3 install git+https://github.com/twintproject/twint.git@origin/master#egg=twint
 aiodns==3.0.0
 aiohttp==3.7.4.post0
 aiohttp-socks==0.6.0
