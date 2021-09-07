@@ -1,3 +1,5 @@
+--extra-index-url https://github.com/twintproject/twint.git@origin/master#egg=twint
+twint==2.1.21
 aiodns==3.0.0
 aiohttp==3.7.4.post0
 aiohttp-socks==0.6.0
@@ -44,8 +46,6 @@ schedule==1.1.0
 six==1.16.0
 soupsieve==2.2.1
 tqdm==4.62.2
---extra-index-url https://github.com/twintproject/twint.git@origin/master#egg=twint
-twint == 2.1.21
 typing-extensions==3.10.0.2
 urllib3==1.26.6
 Werkzeug==2.0.1
