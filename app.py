@@ -33,7 +33,7 @@ def classify():
     distribuicao_surpresa = 0
     distribuicao_nojo = 0
     for tweet in tweets:
-        print("#######" + index + "###########")
+        print("#######" + str(index) + "###########")
         index = index + 1
         tweet_without_special_chars = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
         tweetStemming = []
