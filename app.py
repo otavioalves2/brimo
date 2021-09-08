@@ -33,6 +33,7 @@ def classify():
     distribuicao_surpresa = 0
     distribuicao_nojo = 0
     for tweet in tweets:
+        print("#######" + index + "###########")
         index = index + 1
         tweet_without_special_chars = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
         tweetStemming = []
@@ -71,6 +72,8 @@ def classify():
 
 ############## GET TWEETS ################
 def get_tweets(keyword, lang, limit, since, until):
+    print("#######" + since + "###########")
+    print("#######" + until + "###########")
     c = twint.Config()
     c.Search = keyword
     c.Lowercase = True
