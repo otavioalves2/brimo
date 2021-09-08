@@ -24,7 +24,7 @@ def home():
 #To use the predict button in our web-app
 @app.route('/classify',methods=['POST'])
 def classify():
-    tweets = get_tweets(request.form['keyword'], request.form['lang'], request.form['limit']);
+    tweets = get_tweets(request.form['keyword'], request.form['lang'], request.form['limit'], request.form['since'], request.form['until']);
     index = 0
     distribuicao_tristeza = 0
     distribuicao_alegria = 0
@@ -70,12 +70,16 @@ def classify():
     return render_template('index.html', classificacao='Sentiment analysis :{}'.format(output))
 
 ############## GET TWEETS ################
-def get_tweets(keyword, lang, limit):
+def get_tweets(keyword, lang, limit, since, until):
     c = twint.Config()
     c.Search = keyword
     c.Lowercase = True
     c.Links = 'exclude'
     c.Lang = lang
+    if(since is not None):
+        c.Since = since
+    if(until is not None):
+        c.Until = until
     c.Filter_retweets = True
     c.Limit = limit
     c.Pandas = True
