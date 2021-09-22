@@ -7,6 +7,7 @@ import json
 import twint
 import pandas as pd
 import matplotlib.pyplot as plt
+import threading
 import datetime
 nltk.download('stopwords')
 nltk.download('rslp')
@@ -24,7 +25,7 @@ def home():
 #To use the predict button in our web-app
 @app.route('/classify',methods=['POST'])
 def classify():
-    tweets = get_tweets(request.form['keyword'], request.form['lang'], request.form['limit'], request.form['since'], request.form['until']);
+    tweets = threading.Thread(target=get_tweets(request.form['keyword'], request.form['lang'], request.form['limit'], request.form['since'], request.form['until'])).start()
     index = 0
     distribuicao_tristeza = 0
     distribuicao_alegria = 0
