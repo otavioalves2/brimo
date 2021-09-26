@@ -32,12 +32,14 @@ def test(self, data):
 ################ CELERY JOB ###################
 @app.route('/test')
 def handle_job():
+    print("handle")
     task = celery.send_task('celery_worker.test', args=[request.form])
     response = check_task(task.id)
     return response
 
 @app.route('/tasks/<task_id>')
 def check_task(task_id):
+    print("task_id:", task_id)
     task = celery.AsyncResult(task_id)
 
     if task.state == 'FAILURE':
