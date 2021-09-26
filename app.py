@@ -1,5 +1,5 @@
 ################ IMPORTS ######################
-from flask import Flask, render_template,request
+from flask import Flask, render_template, request, jsonify
 import joblib
 import nltk
 import re
@@ -8,6 +8,32 @@ import twint
 import pandas as pd
 import matplotlib.pyplot as plt
 import datetime
+import os
+from celery import Celery
+
+
+def make_celery(app):
+    # celery = Celery(
+    #     app.import_name,
+    #     backend=app.config['CELERY_RESULT_BACKEND'],
+    #     broker=app.config['CELERY_BROKER_URL']
+    # )
+    broker = os.environ['REDIS_URL']
+    backend = os.environ['REDIS_URL']
+    name = os.environ.get('CELERY_NAME', 'default_name')
+
+    celery = Celery(name, broker=broker,
+                backend=backend)
+    celery.conf.update(app.config)
+
+    class ContextTask(celery.Task):
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
+
+    celery.Task = ContextTask
+    return celery
+
 nltk.download('stopwords')
 nltk.download('rslp')
 #Initialize the flask App
@@ -15,6 +41,16 @@ app = Flask(__name__)
 app.config['DEBUG'] = True
 model = joblib.load('brimo_model.pkl')
 
+celery = make_celery(app)
+
+@celery.task()
+def add_together(a, b):
+    return a + b
+
+@app.route('/test')
+def test():
+    result = add_together.delay(23, 42)
+    result.wait()
 ################# FLASK API ####################
 #default page of our web-app
 @app.route('/')
