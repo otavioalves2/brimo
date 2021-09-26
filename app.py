@@ -40,15 +40,17 @@ def handle_job():
 @app.route('/tasks/<task_id>')
 def check_task(task_id):
     print("task_id:", task_id)
+    
     task = celery.AsyncResult(task_id)
 
     if task.state == 'FAILURE':
         result = None
         error = str(task.result)
     else:
-        result = task.get()
+        result = task.result
         error = None
-
+    be = task.delay()
+    print(be.backend)
     response = {
         'id': task_id,
         'state': task.state,
