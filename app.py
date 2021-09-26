@@ -7,6 +7,7 @@ import json
 import twint
 import pandas as pd
 import matplotlib.pyplot as plt
+import datetime
 import os
 from celery import Celery
 
@@ -33,6 +34,8 @@ def make_celery(app):
     celery.Task = ContextTask
     return celery
 
+nltk.download('stopwords')
+nltk.download('rslp')
 #Initialize the flask App
 app = Flask(__name__)
 app.config['DEBUG'] = True
