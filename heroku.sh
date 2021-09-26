@@ -1,3 +1,3 @@
 #!/bin/bash
-celery worker -A app.celery &
+celery -A app.celery worker &
 gunicorn app:app
