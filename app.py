@@ -46,7 +46,7 @@ def check_task(task_id):
         result = None
         error = str(task.result)
     else:
-        result = task.result
+        result = task.get()
         error = None
 
     response = {
