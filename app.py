@@ -23,41 +23,41 @@ app = Flask(__name__)
 app.config['DEBUG'] = True
 model = joblib.load('brimo_model.pkl')
 
-################# CELERY WORKER #################
-@celery.task(name='celery_worker.test', bind=True)
-def test(self, data):
-    task_id = self.request.id
-    return '{} test OK.'.format(task_id)
+# ################# CELERY WORKER #################
+# @celery.task(name='celery_worker.test', bind=True)
+# def test(self, data):
+#     task_id = self.request.id
+#     return '{} test OK.'.format(task_id)
 
-################ CELERY JOB ###################
-@app.route('/test')
-def handle_job():
-    print("handle")
-    task = celery.send_task('celery_worker.test', args=[request.form])
-    response = check_task(task.id)
-    return response
+# ################ CELERY JOB ###################
+# @app.route('/test')
+# def handle_job():
+#     print("handle")
+#     task = celery.send_task('celery_worker.test', args=[request.form])
+#     response = check_task(task.id)
+#     return response
 
-@app.route('/tasks/<task_id>')
-def check_task(task_id):
-    print("task_id:", task_id)
+# @app.route('/tasks/<task_id>')
+# def check_task(task_id):
+#     print("task_id:", task_id)
     
-    task = celery.AsyncResult(task_id)
+#     task = celery.AsyncResult(task_id)
 
-    if task.state == 'FAILURE':
-        result = None
-        error = str(task.result)
-    else:
-        result = task.result
-        error = None
-    be = task.delay()
-    print(be.backend)
-    response = {
-        'id': task_id,
-        'state': task.state,
-        'result': result,
-        'error': error,
-    }
-    return jsonify(response)
+#     if task.state == 'FAILURE':
+#         result = None
+#         error = str(task.result)
+#     else:
+#         result = task.result
+#         error = None
+#     be = task.delay()
+#     print(be.backend)
+#     response = {
+#         'id': task_id,
+#         'state': task.state,
+#         'result': result,
+#         'error': error,
+#     }
+#     return jsonify(response)
 
 ################# FLASK API ####################
 #default page of our web-app
