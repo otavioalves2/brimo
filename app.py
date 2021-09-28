@@ -104,7 +104,7 @@ def home():
 #To use the predict button in our web-app
 @app.route('/classify',methods=['POST'])
 def classify():
-    task = get_tweets(request.form['keyword'], request.form['lang'], request.form['limit'], request.form['since'], request.form['until']).apply_async()
+    task = get_tweets.apply_async([request.form['keyword'], request.form['lang'], request.form['limit'], request.form['since'], request.form['until']])
     loading = True
     tweets = []
     while(loading):
