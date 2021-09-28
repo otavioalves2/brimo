@@ -161,7 +161,7 @@ def classify():
     return render_template('index.html', classificacao='Sentiment analysis :{}'.format(output))
 
 ############## GET TWEETS ################
-@celery.task(bind=True)
+@celery.task()
 def get_tweets(keyword, lang, limit, since, until):
     print("#######" + since + "###########")
     print("#######" + until + "###########")
