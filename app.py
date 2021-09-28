@@ -162,9 +162,7 @@ def classify():
 
 ############## GET TWEETS ################
 @celery.task(bind=True)
-def get_tweets(self, keyword, lang, limit, since, until):
-    self.update_state(state='PROGRESS',
-                          meta={'status': 'Carregando...'})
+def get_tweets(keyword, lang, limit, since, until):
     print("#######" + since + "###########")
     print("#######" + until + "###########")
     c = twint.Config()
