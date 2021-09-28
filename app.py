@@ -104,7 +104,17 @@ def home():
 #To use the predict button in our web-app
 @app.route('/classify',methods=['POST'])
 def classify():
-    tweets = get_tweets(request.form['keyword'], request.form['lang'], request.form['limit'], request.form['since'], request.form['until']);
+    task = get_tweets(request.form['keyword'], request.form['lang'], request.form['limit'], request.form['since'], request.form['until']).apply_async()
+    loading = True
+    tweets = []
+    while(loading):
+        if(taskstatus(task.id).state == "SUCCESS"):
+            tweets = taskstatus(task.id).result
+            loading = False
+        else:
+            render_template('index.html', classificacao='Carregando...')
+            time.sleep(1)
+
     index = 0
     distribuicao_tristeza = 0
     distribuicao_alegria = 0
@@ -151,7 +161,10 @@ def classify():
     return render_template('index.html', classificacao='Sentiment analysis :{}'.format(output))
 
 ############## GET TWEETS ################
-def get_tweets(keyword, lang, limit, since, until):
+@celery.task(bind=True)
+def get_tweets(keyword, lang, limit, since, until, self):
+    self.update_state(state='PROGRESS',
+                          meta={'status': 'Carregando...'})
     print("#######" + since + "###########")
     print("#######" + until + "###########")
     c = twint.Config()
@@ -181,7 +194,8 @@ def get_tweets(keyword, lang, limit, since, until):
         tweet = ' '.join(word for word in tweet.split(' ') if not word.startswith('@'))
         tweets_for_classify.append(tweet)
 
-    return tweets_for_classify
+    return {'status': 'Tweets prontos para análise!',
+            'result': tweets_for_classify}
          
     
 ############## BRIMO #################
