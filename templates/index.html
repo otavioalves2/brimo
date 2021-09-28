@@ -7,3 +7,7 @@
     <button type="submit" class="btn">Classificar</button>
 </form>
 {{ classificacao }}
+
+<form action="{{ url_for('longtask')}}" method="post">
+    <button type="submit" class="btn">Iniciar worker</button>
+</form>
