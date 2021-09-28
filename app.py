@@ -162,7 +162,7 @@ def classify():
 
 ############## GET TWEETS ################
 @celery.task(bind=True)
-def get_tweets(keyword, lang, limit, since, until, self):
+def get_tweets(self, keyword, lang, limit, since, until):
     self.update_state(state='PROGRESS',
                           meta={'status': 'Carregando...'})
     print("#######" + since + "###########")
