@@ -40,35 +40,9 @@ model = joblib.load('brimo_model.pkl')
 
 celery = make_celery(app)
 
-@celery.task(bind=True)
-def long_task(self):
-    """Background task that runs a long function with progress reports."""
-    verb = ['Starting up', 'Booting', 'Repairing', 'Loading', 'Checking']
-    adjective = ['master', 'radiant', 'silent', 'harmonic', 'fast']
-    noun = ['solar array', 'particle reshaper', 'cosmic ray', 'orbiter', 'bit']
-    message = ''
-    total = random.randint(10, 50)
-    for i in range(total):
-        if not message or random.random() < 0.25:
-            message = '{0} {1} {2}...'.format(random.choice(verb),
-                                              random.choice(adjective),
-                                              random.choice(noun))
-        self.update_state(state='PROGRESS',
-                          meta={'current': i, 'total': total,
-                                'status': message})
-        time.sleep(1)
-    return {'current': 100, 'total': 100, 'status': 'Task completed!',
-            'result': 42}
-
-@app.route('/longtask', methods=['POST'])
-def longtask():
-    task = long_task.apply_async()
-    return jsonify({}), 202, {'Location': url_for('taskstatus',
-                                                  task_id=task.id)}
-
 @app.route('/status/<task_id>')
 def taskstatus(task_id):
-    task = long_task.AsyncResult(task_id)
+    task = get_tweets.AsyncResult(task_id)
     if task.state == 'PENDING':
         # job did not start yet
         response = {
@@ -105,15 +79,9 @@ def home():
 @app.route('/classify',methods=['POST'])
 def classify():
     task = get_tweets.apply_async([request.form['keyword'], request.form['lang'], request.form['limit'], request.form['since'], request.form['until']])
-    loading = True
+    return jsonify({}), 202, {'Location': url_for('taskstatus',
+                                                  task_id=task.id)}
     tweets = []
-    while(loading):
-        if(taskstatus(task.id).state == "SUCCESS"):
-            tweets = taskstatus(task.id).result
-            loading = False
-        else:
-            render_template('index.html', classificacao='Carregando...')
-            time.sleep(1)
 
     index = 0
     distribuicao_tristeza = 0
