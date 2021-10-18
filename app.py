@@ -132,8 +132,6 @@ def classify():
 ############## GET TWEETS ################
 @celery.task()
 def get_tweets(keyword, lang, limit, since, until):
-    print("#######" + since + "###########")
-    print("#######" + until + "###########")
     c = twint.Config()
     c.Search = keyword
     c.Lowercase = True
