@@ -73,7 +73,7 @@ def taskstatus(task_id):
 #default page of our web-app
 @app.route('/')
 def home():
-    return render_template('front/brimo-angular-heroku/src/index.html')
+    return render_template('index.html')
 
 #To use the predict button in our web-app
 @app.route('/classify',methods=['POST'])
