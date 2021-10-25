@@ -12,6 +12,7 @@ import random
 import time
 import os
 from celery import Celery
+from flask_cors import CORS
 
 
 def make_celery(app):
@@ -35,6 +36,7 @@ nltk.download('stopwords')
 nltk.download('rslp')
 #Initialize the flask App
 app = Flask(__name__)
+CORS(app)
 app.config['DEBUG'] = True
 model = joblib.load('brimo_model.pkl')
 
