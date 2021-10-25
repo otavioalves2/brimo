@@ -79,7 +79,8 @@ def home():
 @app.route('/classify',methods=['POST'])
 def classify():
     # task = get_tweets.apply_async([request.form['keyword'], request.form['lang'], request.form['limit'], request.form['since'], request.form['until']])
-    task = get_tweets.apply_async(["bolsonaro", "pt", "100", None , None])
+    request_data = request.get_json()
+    task = get_tweets.apply_async([request_data['keyword'], request_data['language'], request_data['limit'], request_data['since'], request_data['until']])
     return jsonify({}), 202, {'Location': url_for('taskstatus',
                                                   task_id=task.id)}
     tweets = []
