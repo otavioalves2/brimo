@@ -80,12 +80,42 @@ def home():
 #To use the predict button in our web-app
 @app.route('/classify',methods=['POST'])
 def classify():
-    # task = get_tweets.apply_async([request.form['keyword'], request.form['lang'], request.form['limit'], request.form['since'], request.form['until']])
     request_data = request.get_json()
     task = get_tweets.apply_async([request_data['keyword'], request_data['language'], request_data['limit'], request_data['since'], request_data['until']])
-    return jsonify({}), 202, {'Location': url_for('taskstatus',
+    return jsonify({"task_id":task.id}), 202, {'Location': url_for('taskstatus',
                                                   task_id=task.id)}
+    
+    return render_template('index.html', classificacao='Sentiment analysis :{}'.format(output))
+
+############## GET TWEETS ################
+@celery.task()
+def get_tweets(keyword, lang, limit, since, until):
+    c = twint.Config()
+    c.Search = keyword
+    c.Lowercase = True
+    c.Links = 'exclude'
+    c.Lang = lang
+    if(since is not None):
+        c.Since = since
+    if(until is not None):
+        c.Until = until
+    c.Filter_retweets = True
+    c.Limit = limit
+    c.Pandas = True
+
+    twint.run.Search(c)
+    tweets_df = twint.storage.panda.Tweets_df
+
     tweets = []
+    tweets_for_classify = []
+
+    for index,tweet_df in tweets_df.iterrows():
+        tweets.append(tweet_df['tweet'])
+    
+    for tweet in tweets:
+        tweet = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
+        tweet = ' '.join(word for word in tweet.split(' ') if not word.startswith('@'))
+        tweets_for_classify.append(tweet)
 
     index = 0
     distribuicao_tristeza = 0
@@ -94,7 +124,7 @@ def classify():
     distribuicao_raiva = 0
     distribuicao_surpresa = 0
     distribuicao_nojo = 0
-    for tweet in tweets:
+    for tweet in tweets_for_classify:
         print("#######" + str(index) + "###########")
         index = index + 1
         tweet_without_special_chars = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
@@ -130,40 +160,8 @@ def classify():
     distribuicao_medo = distribuicao_medo / index
 
     output = "tristeza: {}, nojo: {}, alegria: {}, surpresa: {}, medo: {}, raiva: {}".format(distribuicao_tristeza, distribuicao_nojo, distribuicao_alegria, distribuicao_surpresa, distribuicao_medo, distribuicao_raiva)
-    return render_template('index.html', classificacao='Sentiment analysis :{}'.format(output))
-
-############## GET TWEETS ################
-@celery.task()
-def get_tweets(keyword, lang, limit, since, until):
-    c = twint.Config()
-    c.Search = keyword
-    c.Lowercase = True
-    c.Links = 'exclude'
-    c.Lang = lang
-    if(since is not None):
-        c.Since = since
-    if(until is not None):
-        c.Until = until
-    c.Filter_retweets = True
-    c.Limit = limit
-    c.Pandas = True
-
-    twint.run.Search(c)
-    tweets_df = twint.storage.panda.Tweets_df
-
-    tweets = []
-    tweets_for_classify = []
-
-    for index,tweet_df in tweets_df.iterrows():
-        tweets.append(tweet_df['tweet'])
-    
-    for tweet in tweets:
-        tweet = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
-        tweet = ' '.join(word for word in tweet.split(' ') if not word.startswith('@'))
-        tweets_for_classify.append(tweet)
-
     return {'status': 'Tweets prontos para análise!',
-            'result': tweets_for_classify}
+            'result': output}
          
     
 ############## BRIMO #################
