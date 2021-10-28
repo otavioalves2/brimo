@@ -125,7 +125,6 @@ def get_tweets(keyword, lang, limit, since, until):
     distribuicao_surpresa = 0
     distribuicao_nojo = 0
     for tweet in tweets_for_classify:
-        print("#######" + str(index) + "###########")
         index = index + 1
         tweet_without_special_chars = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
         tweetStemming = []
@@ -152,12 +151,13 @@ def get_tweets(keyword, lang, limit, since, until):
             else:
                 distribuicao_nojo = distribuicao_nojo + distribuicao.prob(classe)
     
-    distribuicao_nojo = distribuicao_nojo / index
-    distribuicao_raiva = distribuicao_raiva / index
-    distribuicao_alegria = distribuicao_alegria / index
-    distribuicao_tristeza = distribuicao_tristeza / index
-    distribuicao_surpresa = distribuicao_surpresa / index
-    distribuicao_medo = distribuicao_medo / index
+    if(index > 0):
+      distribuicao_nojo = distribuicao_nojo / index
+      distribuicao_raiva = distribuicao_raiva / index
+      distribuicao_alegria = distribuicao_alegria / index
+      distribuicao_tristeza = distribuicao_tristeza / index
+      distribuicao_surpresa = distribuicao_surpresa / index
+      distribuicao_medo = distribuicao_medo / index
 
     output = "tristeza: {}, nojo: {}, alegria: {}, surpresa: {}, medo: {}, raiva: {}".format(distribuicao_tristeza, distribuicao_nojo, distribuicao_alegria, distribuicao_surpresa, distribuicao_medo, distribuicao_raiva)
     return {'status': 'Tweets prontos para análise!',
