@@ -1,4 +1,4 @@
-git+https://github.com/twintproject/twint.git@origin/master#egg=twint
+git+git://github.com/ajctrl/twint@patch-1
 aiodns==3.0.0
 aiohttp==3.7.4.post0
 aiohttp-socks==0.6.0
