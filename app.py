@@ -159,7 +159,15 @@ def get_tweets(keyword, lang, limit, since, until):
       distribuicao_surpresa = distribuicao_surpresa / index
       distribuicao_medo = distribuicao_medo / index
 
-    output = "tristeza: {}, nojo: {}, alegria: {}, surpresa: {}, medo: {}, raiva: {}".format(distribuicao_tristeza, distribuicao_nojo, distribuicao_alegria, distribuicao_surpresa, distribuicao_medo, distribuicao_raiva)
+    #output = "tristeza: {}, nojo: {}, alegria: {}, surpresa: {}, medo: {}, raiva: {}".format(distribuicao_tristeza, distribuicao_nojo, distribuicao_alegria, distribuicao_surpresa, distribuicao_medo, distribuicao_raiva)
+    output = {"tristeza": distribuicao_tristeza,
+      "nojo": distribuicao_nojo,
+      "alegria": distribuicao_alegria,
+      "surpresa": distribuicao_surpresa, 
+      "medo": distribuicao_medo, 
+      "raiva": distribuicao_raiva,
+      "tweets": tweets_for_classify
+    }
     return {'status': 'Tweets prontos para análise!',
             'result': output}
          
