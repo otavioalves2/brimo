@@ -14,9 +14,9 @@ from celery import Celery
 from flask_cors import CORS
 import twint
 c = twint.Config()
-c.Proxy_host = "187.108.39.64"
-c.Proxy_port = "6666"
-c.Proxy_type = "http"
+c.Proxy_host = "149.19.224.15"
+c.Proxy_port = "3128"
+c.Proxy_type = "https"
 twint.run.Lookup(c)
 
 
