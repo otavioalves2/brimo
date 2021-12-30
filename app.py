@@ -5,7 +5,6 @@ import joblib
 import nltk
 import re
 import json
-import twint
 import pandas as pd
 import matplotlib.pyplot as plt
 import random
@@ -13,6 +12,12 @@ import time
 import os
 from celery import Celery
 from flask_cors import CORS
+import twint
+c = twint.Config()
+c.Proxy_host = "187.108.39.64"
+c.Proxy_port = "6666"
+c.Proxy_type = "http"
+twint.run.Lookup(c)
 
 
 def make_celery(app):
@@ -90,7 +95,6 @@ def classify():
 ############## GET TWEETS ################
 @celery.task()
 def get_tweets(keyword, lang, limit, since, until):
-    c = twint.Config()
     c.Search = keyword
     c.Lowercase = True
     c.Links = 'exclude'
