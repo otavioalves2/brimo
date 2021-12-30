@@ -103,7 +103,13 @@ def get_tweets(keyword, lang, limit, since, until):
     c.Limit = limit
     c.Pandas = True
 
-    twint.run.Search(c)
+
+    try:
+        twint.run.Search(c)
+    except twint.token.RefreshTokenException as e:
+        print(e)
+        time.sleep(10)
+        twint.run.Search(c)
     tweets_df = twint.storage.panda.Tweets_df
 
     tweets = []
