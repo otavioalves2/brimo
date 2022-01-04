@@ -12,12 +12,7 @@ import time
 import os
 from celery import Celery
 from flask_cors import CORS
-import twint
-c = twint.Config()
-c.Proxy_host = "187.115.10.50"
-c.Proxy_port = "20183"
-c.Proxy_type = "http"
-twint.run.Lookup(c)
+from Scweet.scweet import scrape
 
 
 def make_celery(app):
@@ -94,27 +89,11 @@ def classify():
 
 ############## GET TWEETS ################
 @celery.task()
-def get_tweets(keyword, lang, limit, since, until):
-    c.Search = keyword
-    c.Lowercase = True
-    c.Links = 'exclude'
-    c.Lang = lang
-    if(since is not None):
-        c.Since = since
-    if(until is not None):
-        c.Until = until
-    c.Filter_retweets = True
-    c.Limit = limit
-    c.Pandas = True
-
-
-    try:
-        twint.run.Search(c)
-    except twint.token.RefreshTokenException as e:
-        print(e)
-        time.sleep(10)
-        twint.run.Search(c)
-    tweets_df = twint.storage.panda.Tweets_df
+def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
+    data = scrape(words=[keyword], since=sinceValue, until=untilValue, from_account = None, interval=1, headless=False, display_type="Top", save_images=False, lang=langValue,
+	  resume=False, limit = limitValue )
+    
+    tweets_df = data.text
 
     tweets = []
     tweets_for_classify = []
