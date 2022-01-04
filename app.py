@@ -93,7 +93,7 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     data = scrape(words=[keyword], since=sinceValue, until=untilValue, from_account = None, interval=1, headless=False, display_type="Latest", save_images=False, lang=langValue,
 	  resume=False, limit = limitValue )
     
-    tweets_df = data.text
+    tweets_df = data.Text
 
     tweets = []
     tweets_for_classify = []
