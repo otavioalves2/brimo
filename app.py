@@ -90,7 +90,7 @@ def classify():
 ############## GET TWEETS ################
 @celery.task()
 def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
-    data = scrape(words=[keyword], since=sinceValue, until=untilValue, from_account = None, interval=1, headless=True, display_type="Latest", save_images=False, lang=langValue,
+    data = scrape(words=[keyword], since=sinceValue, until=untilValue, from_account = None, interval=1, headless=False, display_type="Latest", save_images=False, lang=langValue,
 	  resume=False, limit = limitValue )
     
     tweets_df = data.text
