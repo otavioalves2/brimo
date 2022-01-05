@@ -139,10 +139,12 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     json_response = connect_to_endpoint(url[0], headers, url[1])
 
     #return {'status': 'Tweets prontos para análise!',
-          #  'result': json.dumps(json_response, indent=4, sort_keys=True)}
+          #  'result': }
 
     tweets = []
     tweets_for_classify = []
+    print('JSON_DUMP')
+    print(json.dumps(json_response, indent=4, sort_keys=True))
 
     for tweetObj in json_response:
         tweets.append(json_response[tweetObj][1])
@@ -151,6 +153,9 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
         tweet = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
         tweet = ' '.join(word for word in tweet.split(' ') if not word.startswith('@'))
         tweets_for_classify.append(tweet)
+
+    print('TWEETS_FOR_CLASSIFY')
+    print(tweets_for_classify)
 
     index = 0
     distribuicao_tristeza = 0
