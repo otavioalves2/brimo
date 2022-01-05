@@ -138,15 +138,13 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     url = create_url(keyword, start_time,end_time, max_results)
     json_response = connect_to_endpoint(url[0], headers, url[1])
 
-    #return {'status': 'Tweets prontos para análise!',
-          #  'result': }
+    return {'status': 'Tweets prontos para análise!',
+            'result': json_response}
 
     tweets = []
     tweets_for_classify = []
 
-    json_response_dic = json.loads(json_response['data'])
-
-    for tweetObj in json_response_dic:
+    for tweetObj in json_response:
         print(tweetObj)
         tweets.append(tweetObj['text'])
     
