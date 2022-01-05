@@ -4,18 +4,29 @@ from flask.helpers import url_for
 import joblib
 import nltk
 import re
-import json
-import pandas as pd
-import matplotlib.pyplot as plt
-import random
-import time
-import os
 from celery import Celery
 from flask_cors import CORS
-from Scweet.scweet import scrape
+
+# For sending GET requests from the API
+import requests
+# For saving access tokens and for file management when creating and adding to the dataset
+import os
+# For dealing with json responses we receive from the API
+import json
+# For displaying the data after
+import pandas as pd
+# For saving the response data in CSV format
+import csv
+# For parsing the dates received from twitter in readable formats
+import datetime
+import dateutil.parser
+import unicodedata
+#To add wait time between requests
+import time
 
 
 def make_celery(app):
+    os.environ['TOKEN'] = 'AAAAAAAAAAAAAAAAAAAAAFUPXwEAAAAAYyR3Kgg5btBKAgkBAAkyUBHDkQQ%3DexHE1M3ol9j9RhLBnlMGV2a5eksteqJ4EgFjmUbSYimdTFWHbt'
     broker = os.environ['REDIS_URL']
     backend = os.environ['REDIS_URL']
     name = os.environ.get('CELERY_NAME', 'default_name')
@@ -31,6 +42,35 @@ def make_celery(app):
 
     celery.Task = ContextTask
     return celery
+
+def auth():
+    return os.getenv('TOKEN')
+
+def create_headers(bearer_token):
+    headers = {"Authorization": "Bearer {}".format(bearer_token)}
+    return headers    
+
+def create_url(keyword, start_date, end_date, max_results = 10):
+    
+    search_url = "https://api.twitter.com/2/tweets/search/recent" #Change to the endpoint you want to collect data from
+
+    #change params based on the endpoint you are using
+    query_params = {'query': keyword,
+                    'start_time': start_date,
+                    'end_time': end_date,
+                    'max_results': max_results,
+                    'tweet.fields': 'id,text',
+                    'place.fields': 'country',
+                    'next_token': {}}
+    return (search_url, query_params)
+
+def connect_to_endpoint(url, headers, params, next_token = None):
+    params['next_token'] = next_token   #params object received from create_url function
+    response = requests.request("GET", url, headers = headers, params = params)
+    print("Endpoint Response Code: " + str(response.status_code))
+    if response.status_code != 200:
+        raise Exception(response.status_code, response.text)
+    return response.json()
 
 nltk.download('stopwords')
 nltk.download('rslp')
@@ -84,16 +124,23 @@ def classify():
     task = get_tweets.apply_async([request_data['keyword'], request_data['language'], request_data['limit'], request_data['since'], request_data['until']])
     return jsonify({"task_id":task.id}), 202, {'Location': url_for('taskstatus',
                                                   task_id=task.id)}
-    
-    return render_template('index.html', classificacao='Sentiment analysis :{}'.format(output))
 
 ############## GET TWEETS ################
 @celery.task()
 def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
-    data = scrape(words=[keyword], since=sinceValue, until=untilValue, from_account = None, interval=1, headless=True, display_type="Latest", save_images=False, lang=langValue,
-	  resume=False, limit = limitValue )
-    
-    tweets_df = data.Text
+    bearer_token = auth()
+    headers = create_headers(bearer_token)
+    keyword = keyword + ' lang:pt -is:retweet'
+    start_time = "2021-03-01T00:00:00.000Z"
+    end_time = "2021-03-31T00:00:00.000Z"
+    max_results = 15
+
+    url = create_url(keyword, start_time,end_time, max_results)
+    json_response = connect_to_endpoint(url[0], headers, url[1])
+
+    return {'status': 'Tweets prontos para análise!',
+            'result': json.dumps(json_response, indent=4, sort_keys=True)}
+    #tweets_df = 
 
     tweets = []
     tweets_for_classify = []
