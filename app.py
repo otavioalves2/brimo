@@ -23,7 +23,7 @@ import dateutil.parser
 import unicodedata
 #To add wait time between requests
 import time
-
+import math
 
 def make_celery(app):
     os.environ['TOKEN'] = 'AAAAAAAAAAAAAAAAAAAAAFUPXwEAAAAAYyR3Kgg5btBKAgkBAAkyUBHDkQQ%3DexHE1M3ol9j9RhLBnlMGV2a5eksteqJ4EgFjmUbSYimdTFWHbt'
@@ -133,16 +133,24 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     keyword = keyword + ' lang:pt -is:retweet -has:links -has:media'
     start_time = "2021-12-30T00:00:00.000Z"
     end_time = "2021-12-31T00:00:00.000Z"
-    max_results = 15
+    max_results = limitValue if (limitValue <= 100) else 100
 
-    url = create_url(keyword, start_time,end_time, max_results)
-    json_response = connect_to_endpoint(url[0], headers, url[1])
+    next_token = None
+    loopLength = int(math.ceil(limitValue / 100))
 
     tweets = []
     tweets_for_classify = []
 
-    for tweetObj in json_response["data"]:
+    for x in range(loopLength):
+      url = create_url(keyword, start_time,end_time, max_results)
+      json_response = connect_to_endpoint(url[0], headers, url[1], next_token)
+      for tweetObj in json_response["data"]:
         tweets.append(tweetObj["text"])
+      if 'next_token' in json_response['meta']:
+        next_token = json_response['meta']['next_token']
+        time.sleep(5)
+      time.sleep(5)
+    
     
     for tweet in tweets:
         tweet = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
