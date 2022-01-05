@@ -144,11 +144,11 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     tweets = []
     tweets_for_classify = []
 
-    return {'status': 'Tweets prontos para análise!',
-            'result': json_response}
-    for tweetObj in json_response['data']:
-        print(json_response[tweetObj])
-        tweets.append(json_response[tweetObj]['text'])
+    json_response_dic = json.loads(json_response)
+    
+    for tweetObj in json_response_dic['data']:
+        print(tweetObj)
+        tweets.append(tweetObj['text'])
     
     for tweet in tweets:
         tweet = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
