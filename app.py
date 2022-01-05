@@ -138,6 +138,9 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     next_token = None
     loopLength = int(math.ceil(limitValue / 100))
 
+    print('LOOP LENGTH ------- ' + loopLength)
+    print('LIMIT VALUE ------- ' + limitValue)
+
     tweets = []
     tweets_for_classify = []
 
@@ -158,7 +161,7 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
         tweets_for_classify.append(tweet)
 
     print('TWEETS_FOR_CLASSIFY')
-    print(tweets_for_classify)
+    print(len(tweets_for_classify))
 
     index = 0
     distribuicao_tristeza = 0
