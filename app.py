@@ -131,8 +131,8 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     bearer_token = auth()
     headers = create_headers(bearer_token)
     keyword = keyword + ' lang:pt -is:retweet'
-    start_time = "2021-03-01T00:00:00.000Z"
-    end_time = "2021-03-31T00:00:00.000Z"
+    start_time = "2021-12-30T00:00:00.000Z"
+    end_time = "2021-12-31T00:00:00.000Z"
     max_results = 15
 
     url = create_url(keyword, start_time,end_time, max_results)
