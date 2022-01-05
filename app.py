@@ -147,6 +147,7 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     print(json.dumps(json_response, indent=4, sort_keys=True))
 
     for tweetObj in json_response:
+        print(json_response[tweetObj])
         tweets.append(json_response[tweetObj][1])
     
     for tweet in tweets:
