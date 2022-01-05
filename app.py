@@ -144,9 +144,9 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     tweets = []
     tweets_for_classify = []
 
-    json_response_dic = json.loads(json_response)
-    
-    for tweetObj in json_response_dic['data']:
+    json_response_dic = json.loads(json_response['data'])
+
+    for tweetObj in json_response_dic:
         print(tweetObj)
         tweets.append(tweetObj['text'])
     
