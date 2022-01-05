@@ -130,7 +130,7 @@ def classify():
 def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     bearer_token = auth()
     headers = create_headers(bearer_token)
-    keyword = keyword + ' lang:pt -is:retweet'
+    keyword = keyword + ' lang:pt -is:retweet -has:links -has:media'
     start_time = "2021-12-30T00:00:00.000Z"
     end_time = "2021-12-31T00:00:00.000Z"
     max_results = 15
@@ -138,15 +138,14 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     url = create_url(keyword, start_time,end_time, max_results)
     json_response = connect_to_endpoint(url[0], headers, url[1])
 
-    return {'status': 'Tweets prontos para análise!',
-            'result': json.dumps(json_response, indent=4, sort_keys=True)}
-    #tweets_df = 
+    #return {'status': 'Tweets prontos para análise!',
+          #  'result': json.dumps(json_response, indent=4, sort_keys=True)}
 
     tweets = []
     tweets_for_classify = []
 
-    for index,tweet_df in tweets_df.iterrows():
-        tweets.append(tweet_df['tweet'])
+    for tweetObj in json_response:
+        tweets.append(json_response[tweetObj]['text'])
     
     for tweet in tweets:
         tweet = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
