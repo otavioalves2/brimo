@@ -50,14 +50,12 @@ def create_headers(bearer_token):
     headers = {"Authorization": "Bearer {}".format(bearer_token)}
     return headers    
 
-def create_url(keyword, start_date, end_date, max_results = 10):
+def create_url(keyword, max_results = 10):
     
     search_url = "https://api.twitter.com/2/tweets/search/recent" #Change to the endpoint you want to collect data from
 
     #change params based on the endpoint you are using
     query_params = {'query': keyword,
-                    'start_time': start_date,
-                    'end_time': end_date,
                     'max_results': max_results,
                     'tweet.fields': 'id,text',
                     'place.fields': 'country',
@@ -131,8 +129,6 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     bearer_token = auth()
     headers = create_headers(bearer_token)
     keyword = keyword + ' lang:pt -is:retweet -has:links -has:media'
-    start_time = "2021-12-30T00:00:00.000Z"
-    end_time = "2021-12-31T00:00:00.000Z"
     max_results = limitValue if (limitValue <= 100) else 100
 
     next_token = None
@@ -142,7 +138,7 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     tweets_for_classify = []
 
     for x in range(loopLength):
-      url = create_url(keyword, start_time,end_time, max_results)
+      url = create_url(keyword, max_results)
       json_response = connect_to_endpoint(url[0], headers, url[1], next_token)
       for tweetObj in json_response["data"]:
         tweets.append(tweetObj["text"])
