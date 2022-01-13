@@ -173,7 +173,8 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
         tweetStemming = []
         stemmer = nltk.stem.RSLPStemmer()
         for(palavras_treinamento) in tweet_without_special_chars.split():
-            palavras.append(palavras_treinamento)
+            if palavras_treinamento not in lista_Stop:
+              palavras.append(palavras_treinamento)
             comStem = [p for p in palavras_treinamento.split()]
             tweetStemming.append(str(stemmer.stem(comStem[0])))
             
