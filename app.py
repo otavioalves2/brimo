@@ -176,9 +176,7 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
             
         novo = extrator_palavras(tweetStemming)
 
-        print(novo)
-
-        palavras.append(novo)
+        palavras.append(tweet_without_special_chars.split())
 
         distribuicao = model.prob_classify(novo)
         output = ""
@@ -210,7 +208,8 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
       "surpresa": distribuicao_surpresa, 
       "medo": distribuicao_medo, 
       "raiva": distribuicao_raiva,
-      "tweets": tweets_for_classify
+      "tweets": tweets_for_classify,
+      "words": palavras
     }
     return {'status': 'Tweets prontos para análise!',
             'result': output}
