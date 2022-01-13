@@ -137,6 +137,8 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     tweets = []
     tweets_for_classify = []
 
+    
+
     for x in range(loopLength):
       url = create_url(keyword, max_results)
       json_response = connect_to_endpoint(url[0], headers, url[1], next_token)
@@ -161,6 +163,8 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     distribuicao_surpresa = 0
     distribuicao_nojo = 0
 
+    palavras = []
+
     for tweet in tweets_for_classify:
         index = index + 1
         tweet_without_special_chars = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
@@ -171,6 +175,10 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
             tweetStemming.append(str(stemmer.stem(comStem[0])))
             
         novo = extrator_palavras(tweetStemming)
+
+        print(novo)
+
+        palavras.append(novo)
 
         distribuicao = model.prob_classify(novo)
         output = ""
