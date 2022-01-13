@@ -210,7 +210,7 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
       "medo": distribuicao_medo, 
       "raiva": distribuicao_raiva,
       "tweets": tweets_for_classify,
-      "words": collections.Counter(palavras).most_common(float(limitValue) * 0.1)
+      "words": collections.Counter(palavras).most_common(30)
     }
     return {'status': 'Tweets prontos para análise!',
             'result': output}
