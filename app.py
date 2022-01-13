@@ -25,6 +25,8 @@ import unicodedata
 import time
 import math
 
+import collections
+
 def make_celery(app):
     os.environ['TOKEN'] = 'AAAAAAAAAAAAAAAAAAAAAFUPXwEAAAAAYyR3Kgg5btBKAgkBAAkyUBHDkQQ%3DexHE1M3ol9j9RhLBnlMGV2a5eksteqJ4EgFjmUbSYimdTFWHbt'
     broker = os.environ['REDIS_URL']
@@ -171,12 +173,11 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
         tweetStemming = []
         stemmer = nltk.stem.RSLPStemmer()
         for(palavras_treinamento) in tweet_without_special_chars.split():
+            palavras.append(palavras_treinamento)
             comStem = [p for p in palavras_treinamento.split()]
             tweetStemming.append(str(stemmer.stem(comStem[0])))
             
         novo = extrator_palavras(tweetStemming)
-
-        palavras.append(tweet_without_special_chars.split())
 
         distribuicao = model.prob_classify(novo)
         output = ""
@@ -209,7 +210,7 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
       "medo": distribuicao_medo, 
       "raiva": distribuicao_raiva,
       "tweets": tweets_for_classify,
-      "words": palavras
+      "words": collections.Counter(palavras).most_common(limitValue * 0.1)
     }
     return {'status': 'Tweets prontos para análise!',
             'result': output}
