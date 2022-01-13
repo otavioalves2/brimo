@@ -153,9 +153,6 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
         tweet = ' '.join(word for word in tweet.split(' ') if not word.startswith('@'))
         tweets_for_classify.append(tweet)
 
-    print('TWEETS_FOR_CLASSIFY')
-    print(len(tweets_for_classify))
-
     index = 0
     distribuicao_tristeza = 0
     distribuicao_alegria = 0
@@ -198,14 +195,14 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
       distribuicao_surpresa = distribuicao_surpresa / index
       distribuicao_medo = distribuicao_medo / index
 
-    #output = "tristeza: {}, nojo: {}, alegria: {}, surpresa: {}, medo: {}, raiva: {}".format(distribuicao_tristeza, distribuicao_nojo, distribuicao_alegria, distribuicao_surpresa, distribuicao_medo, distribuicao_raiva)
     output = {"tristeza": distribuicao_tristeza,
       "nojo": distribuicao_nojo,
       "alegria": distribuicao_alegria,
       "surpresa": distribuicao_surpresa, 
       "medo": distribuicao_medo, 
       "raiva": distribuicao_raiva,
-      "tweets": tweets_for_classify
+      "tweets": tweets_for_classify,
+      "words": novo
     }
     return {'status': 'Tweets prontos para análise!',
             'result': output}
