@@ -182,23 +182,30 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
 
         distribuicao = model.prob_classify(novo)
         output = ""
-
-        sentimento_individual = (tweetStemming, novo, distribuicao)
-        sentimento_individual_array.append(sentimento_individual)
+        distribuicao_individual = []
         for classe in distribuicao.samples():
             if classe == "tristeza":
+                distribuicao_individual.append("tristeza", distribuicao_tristeza)
                 distribuicao_tristeza = distribuicao_tristeza + distribuicao.prob(classe)
             elif classe == "alegria":
+                distribuicao_individual.append("alegria", distribuicao_alegria)
                 distribuicao_alegria = distribuicao_alegria + distribuicao.prob(classe)
             elif classe == "medo":
+                distribuicao_individual.append("medo", distribuicao_medo)
                 distribuicao_medo = distribuicao_medo + distribuicao.prob(classe)
             elif classe == "raiva":
+                distribuicao_individual.append("raiva", distribuicao_raiva)
                 distribuicao_raiva = distribuicao_raiva + distribuicao.prob(classe)
             elif classe == "surpresa":
+                distribuicao_individual.append("surpresa", distribuicao_surpresa)
                 distribuicao_surpresa = distribuicao_surpresa + distribuicao.prob(classe)
             else:
+                distribuicao_individual.append("nojo", distribuicao_nojo)
                 distribuicao_nojo = distribuicao_nojo + distribuicao.prob(classe)
     
+        sentimento_individual = (tweetStemming, novo, distribuicao_individual)
+        sentimento_individual_array.append(sentimento_individual)
+
     if(index > 0):
       distribuicao_nojo = distribuicao_nojo / index
       distribuicao_raiva = distribuicao_raiva / index
