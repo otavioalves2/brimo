@@ -208,12 +208,12 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
 
     total = distribuicao_alegria + distribuicao_medo + distribuicao_raiva + distribuicao_surpresa + distribuicao_nojo + distribuicao_tristeza
     if(index > 0):
-      distribuicao_nojo = ((distribuicao_nojo * 100) / total) / 10
-      distribuicao_raiva = ((distribuicao_raiva * 100) / total) / 10
-      distribuicao_alegria = ((distribuicao_alegria * 100) / total) / 10
-      distribuicao_tristeza = ((distribuicao_tristeza * 100) / total) / 10
-      distribuicao_surpresa = ((distribuicao_surpresa * 100) / total) / 10
-      distribuicao_medo = ((distribuicao_medo * 100) / total) / 10
+      distribuicao_nojo = ((distribuicao_nojo * 100) / total) / 100
+      distribuicao_raiva = ((distribuicao_raiva * 100) / total) / 100
+      distribuicao_alegria = ((distribuicao_alegria * 100) / total) / 100
+      distribuicao_tristeza = ((distribuicao_tristeza * 100) / total) / 100
+      distribuicao_surpresa = ((distribuicao_surpresa * 100) / total) / 100
+      distribuicao_medo = ((distribuicao_medo * 100) / total) / 100
 
     output = {"tristeza": distribuicao_tristeza,
       "nojo": distribuicao_nojo,
