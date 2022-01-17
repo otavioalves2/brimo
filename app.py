@@ -166,7 +166,7 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     distribuicao_nojo = 0
 
     palavras = []
-
+    sentimento_individual_array = []
     for tweet in tweets_for_classify:
         index = index + 1
         tweet_without_special_chars = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
@@ -182,6 +182,9 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
 
         distribuicao = model.prob_classify(novo)
         output = ""
+
+        sentimento_individual = (tweetStemming, novo, distribuicao)
+        sentimento_individual_array.append(sentimento_individual)
         for classe in distribuicao.samples():
             if classe == "tristeza":
                 distribuicao_tristeza = distribuicao_tristeza + distribuicao.prob(classe)
@@ -211,7 +214,8 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
       "medo": distribuicao_medo, 
       "raiva": distribuicao_raiva,
       "tweets": tweets_for_classify,
-      "words": collections.Counter(palavras).most_common(30)
+      "words": collections.Counter(palavras).most_common(30),
+      "analise_por_tweet": sentimento_individual_array
     }
     return {'status': 'Tweets prontos para análise!',
             'result': output}
