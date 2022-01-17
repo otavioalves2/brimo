@@ -206,13 +206,14 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
         sentimento_individual = (tweetStemming, novo, distribuicao_individual)
         sentimento_individual_array.append(sentimento_individual)
 
+    total = distribuicao_alegria + distribuicao_medo + distribuicao_raiva + distribuicao_surpresa + distribuicao_nojo + distribuicao_tristeza
     if(index > 0):
-      distribuicao_nojo = distribuicao_nojo / index
-      distribuicao_raiva = distribuicao_raiva / index
-      distribuicao_alegria = distribuicao_alegria / index
-      distribuicao_tristeza = distribuicao_tristeza / index
-      distribuicao_surpresa = distribuicao_surpresa / index
-      distribuicao_medo = distribuicao_medo / index
+      distribuicao_nojo = ((distribuicao_nojo * 100) / total) / 10
+      distribuicao_raiva = ((distribuicao_raiva * 100) / total) / 10
+      distribuicao_alegria = ((distribuicao_alegria * 100) / total) / 10
+      distribuicao_tristeza = ((distribuicao_tristeza * 100) / total) / 10
+      distribuicao_surpresa = ((distribuicao_surpresa * 100) / total) / 10
+      distribuicao_medo = ((distribuicao_medo * 100) / total) / 10
 
     output = {"tristeza": distribuicao_tristeza,
       "nojo": distribuicao_nojo,
@@ -222,6 +223,7 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
       "raiva": distribuicao_raiva,
       "tweets": tweets_for_classify,
       "words": collections.Counter(palavras).most_common(30),
+      "total": total,
       "analise_por_tweet": sentimento_individual_array
     }
     return {'status': 'Tweets prontos para análise!',
