@@ -164,6 +164,7 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     distribuicao_raiva = 0
     distribuicao_surpresa = 0
     distribuicao_nojo = 0
+    distribuicao_neutro = 0
 
     palavras = []
     sentimento_individual_array = []
@@ -202,6 +203,8 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
             else:
                 distribuicao_individual.append(("nojo", distribuicao_nojo))
                 distribuicao_nojo = distribuicao_nojo + distribuicao.prob(classe)
+            if (distribuicao_alegria + distribuicao_medo + distribuicao_raiva + distribuicao_surpresa + distribuicao_nojo + distribuicao_tristeza) == 0:
+                distribuicao_neutro = distribuicao_neutro + 1
     
         sentimento_individual = (tweetStemming, novo, distribuicao_individual)
         sentimento_individual_array.append(sentimento_individual)
@@ -214,6 +217,7 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
       distribuicao_tristeza = ((distribuicao_tristeza * 100) / total) / 100
       distribuicao_surpresa = ((distribuicao_surpresa * 100) / total) / 100
       distribuicao_medo = ((distribuicao_medo * 100) / total) / 100
+      distribuicao_neutro = ((distribuicao_neutro * 100) / total) / 100
 
     output = {"tristeza": distribuicao_tristeza,
       "nojo": distribuicao_nojo,
@@ -221,6 +225,7 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
       "surpresa": distribuicao_surpresa, 
       "medo": distribuicao_medo, 
       "raiva": distribuicao_raiva,
+      "neutro": distribuicao_neutro,
       "tweets": tweets_for_classify,
       "words": collections.Counter(palavras).most_common(30),
       "total": total,
