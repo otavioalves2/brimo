@@ -166,73 +166,81 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     distribuicao_nojo = 0
     distribuicao_neutro = 0
 
-    palavras = []
-    sentimento_individual_array = []
+    #palavras = []
+    #sentimento_individual_array = []
+    tweets_string = ""
     for tweet in tweets_for_classify:
-        index = index + 1
+    #    index = index + 1
         tweet_without_special_chars = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
-        tweetStemming = []
-        stemmer = nltk.stem.RSLPStemmer()
-        for(palavras_treinamento) in tweet_without_special_chars.split():
-            if palavras_treinamento not in lista_Stop:
-              palavras.append(palavras_treinamento)
-            comStem = [p for p in palavras_treinamento.split()]
-            tweetStemming.append(str(stemmer.stem(comStem[0])))
+        tweets_string = tweets_string + tweet_without_special_chars + " "
+        
+    response = requests.post('https://brimo-r.herokuapp.com/classify', data={'tweets': tweets_string})
+    print("Endpoint Response Code: " + str(response.status_code))
+    if response.status_code != 200:
+        raise Exception(response.status_code, response.text)
+
+  #      tweetStemming = []
+    #    stemmer = nltk.stem.RSLPStemmer()
+        #for(palavras_treinamento) in tweet_without_special_chars.split():
+       #     if palavras_treinamento not in lista_Stop:
+      #        palavras.append(palavras_treinamento)
+      #      comStem = [p for p in palavras_treinamento.split()]
+      #      tweetStemming.append(str(stemmer.stem(comStem[0])))
             
-        novo = extrator_palavras(tweetStemming)
+     #   novo = extrator_palavras(tweetStemming)
+#
+        #distribuicao = model.prob_classify(novo)
+       # output = ""
+        #distribuicao_individual = []
+        #for classe in distribuicao.samples():
+        #    if classe == "tristeza":
+       #         distribuicao_individual.append(("tristeza", distribuicao_tristeza))
+       #         distribuicao_tristeza = distribuicao_tristeza + distribuicao.prob(classe)
+        #    elif classe == "alegria":
+       #         distribuicao_individual.append(("alegria", distribuicao_alegria))
+       #         distribuicao_alegria = distribuicao_alegria + distribuicao.prob(classe)
+       #     elif classe == "medo":
+       #         distribuicao_individual.append(("medo", distribuicao_medo))
+        #        distribuicao_medo = distribuicao_medo + distribuicao.prob(classe)
+        #    elif classe == "raiva":
+        #        distribuicao_individual.append(("raiva", distribuicao_raiva))
+        #        distribuicao_raiva = distribuicao_raiva + distribuicao.prob(classe)
+        #    elif classe == "surpresa":
+         #       distribuicao_individual.append(("surpresa", distribuicao_surpresa))
+        #        distribuicao_surpresa = distribuicao_surpresa + distribuicao.prob(classe)
+        #    else:
+        #        distribuicao_individual.append(("nojo", distribuicao_nojo))
+        #        distribuicao_nojo = distribuicao_nojo + distribuicao.prob(classe)
+        #    if (distribuicao_alegria + distribuicao_medo + distribuicao_raiva + distribuicao_surpresa + distribuicao_nojo + distribuicao_tristeza) == 0:
+        #        distribuicao_neutro = distribuicao_neutro + 1.0
+    #
+      #  sentimento_individual = (tweetStemming, novo, distribuicao_individual)
+      #  sentimento_individual_array.append(sentimento_individual)
 
-        distribuicao = model.prob_classify(novo)
-        output = ""
-        distribuicao_individual = []
-        for classe in distribuicao.samples():
-            if classe == "tristeza":
-                distribuicao_individual.append(("tristeza", distribuicao_tristeza))
-                distribuicao_tristeza = distribuicao_tristeza + distribuicao.prob(classe)
-            elif classe == "alegria":
-                distribuicao_individual.append(("alegria", distribuicao_alegria))
-                distribuicao_alegria = distribuicao_alegria + distribuicao.prob(classe)
-            elif classe == "medo":
-                distribuicao_individual.append(("medo", distribuicao_medo))
-                distribuicao_medo = distribuicao_medo + distribuicao.prob(classe)
-            elif classe == "raiva":
-                distribuicao_individual.append(("raiva", distribuicao_raiva))
-                distribuicao_raiva = distribuicao_raiva + distribuicao.prob(classe)
-            elif classe == "surpresa":
-                distribuicao_individual.append(("surpresa", distribuicao_surpresa))
-                distribuicao_surpresa = distribuicao_surpresa + distribuicao.prob(classe)
-            else:
-                distribuicao_individual.append(("nojo", distribuicao_nojo))
-                distribuicao_nojo = distribuicao_nojo + distribuicao.prob(classe)
-            if (distribuicao_alegria + distribuicao_medo + distribuicao_raiva + distribuicao_surpresa + distribuicao_nojo + distribuicao_tristeza) == 0:
-                distribuicao_neutro = distribuicao_neutro + 1
-    
-        sentimento_individual = (tweetStemming, novo, distribuicao_individual)
-        sentimento_individual_array.append(sentimento_individual)
-
-    total = distribuicao_alegria + distribuicao_medo + distribuicao_raiva + distribuicao_surpresa + distribuicao_nojo + distribuicao_tristeza
-    if(index > 0):
-      distribuicao_nojo = ((distribuicao_nojo * 100) / total) / 100
-      distribuicao_raiva = ((distribuicao_raiva * 100) / total) / 100
-      distribuicao_alegria = ((distribuicao_alegria * 100) / total) / 100
-      distribuicao_tristeza = ((distribuicao_tristeza * 100) / total) / 100
-      distribuicao_surpresa = ((distribuicao_surpresa * 100) / total) / 100
-      distribuicao_medo = ((distribuicao_medo * 100) / total) / 100
-      distribuicao_neutro = ((distribuicao_neutro * 100) / total) / 100
-
-    output = {"tristeza": distribuicao_tristeza,
-      "nojo": distribuicao_nojo,
-      "alegria": distribuicao_alegria,
-      "surpresa": distribuicao_surpresa, 
-      "medo": distribuicao_medo, 
-      "raiva": distribuicao_raiva,
-      "neutro": distribuicao_neutro,
-      "tweets": tweets_for_classify,
-      "words": collections.Counter(palavras).most_common(30),
-      "total": total,
-      "analise_por_tweet": sentimento_individual_array
-    }
+   # total = distribuicao_alegria + distribuicao_medo + distribuicao_raiva + distribuicao_surpresa + distribuicao_nojo + distribuicao_tristeza
+   # if(index > 0):
+   #   distribuicao_nojo = ((distribuicao_nojo * 100) / total) / 100
+   #   distribuicao_raiva = ((distribuicao_raiva * 100) / total) / 100
+  ##    distribuicao_alegria = ((distribuicao_alegria * 100) / total) / 100
+  #    distribuicao_tristeza = ((distribuicao_tristeza * 100) / total) / 100
+  #    distribuicao_surpresa = ((distribuicao_surpresa * 100) / total) / 100
+   #   distribuicao_medo = ((distribuicao_medo * 100) / total) / 100
+  #    distribuicao_neutro = ((distribuicao_neutro * 100) / total) / 100
+#
+  #  output = {"tristeza": distribuicao_tristeza,
+  #    "nojo": distribuicao_nojo,
+  #    "alegria": distribuicao_alegria,
+  #    "surpresa": distribuicao_surpresa, 
+  #    "medo": distribuicao_medo, 
+  #    "raiva": distribuicao_raiva,
+  #    "neutro": distribuicao_neutro,
+  #    "tweets": tweets_for_classify,
+  #    "words": collections.Counter(palavras).most_common(30),
+  #    "total": total,
+  #    "analise_por_tweet": sentimento_individual_array
+   # }
     return {'status': 'Tweets prontos para análise!',
-            'result': output}
+            'result': response.json()}
          
     
 ############## BRIMO #################
