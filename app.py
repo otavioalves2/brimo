@@ -244,7 +244,8 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
   #    "total": total,
   #    "analise_por_tweet": sentimento_individual_array
    # }
-    output = {'classify': responseClassify.json(), 'corpus': collections.Counter(responseCorpus.json().split()).most_common(30), 'tweets': tweets_for_classify}
+    responseCorpus.json()
+    output = {'classify': responseClassify.json(), 'corpus': collections.Counter(responseCorpus.json()[0].split()).most_common(30), 'tweets': tweets_for_classify}
     return {'status': 'Tweets prontos para análise!',
             'result': output}
          
