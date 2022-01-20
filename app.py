@@ -174,10 +174,15 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
         tweet_without_special_chars = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
         tweets_string = tweets_string + tweet_without_special_chars + " "
         
-    response = requests.post('https://brimo-r.herokuapp.com/classify', data={'tweets': tweets_string})
-    print("Endpoint Response Code: " + str(response.status_code))
-    if response.status_code != 200:
-        raise Exception(response.status_code, response.text)
+    responseClassify = requests.post('https://brimo-r.herokuapp.com/classify', data={'tweets': tweets_string})
+    print("Endpoint Response Code: " + str(responseClassify.status_code))
+    if responseClassify.status_code != 200:
+        raise Exception(responseClassify.status_code, responseClassify.text)
+    
+    responseCorpus = requests.post('https://brimo-r.herokuapp.com/corpus', data={'tweets': tweets_string})
+    print("Endpoint Response Code: " + str(responseCorpus.status_code))
+    if responseCorpus.status_code != 200:
+        raise Exception(responseCorpus.status_code, responseCorpus.text)
 
   #      tweetStemming = []
     #    stemmer = nltk.stem.RSLPStemmer()
@@ -239,8 +244,9 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
   #    "total": total,
   #    "analise_por_tweet": sentimento_individual_array
    # }
+    output = {'classify': responseClassify.json(), 'corpus': responseCorpus.json()}
     return {'status': 'Tweets prontos para análise!',
-            'result': response.json()}
+            'result': output}
          
     
 ############## BRIMO #################
