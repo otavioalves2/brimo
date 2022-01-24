@@ -1,8 +1,6 @@
 ################ IMPORTS ######################
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, jsonify
 from flask.helpers import url_for
-import joblib
-import nltk
 import re
 from celery import Celery
 from flask_cors import CORS
@@ -11,16 +9,6 @@ from flask_cors import CORS
 import requests
 # For saving access tokens and for file management when creating and adding to the dataset
 import os
-# For dealing with json responses we receive from the API
-import json
-# For displaying the data after
-import pandas as pd
-# For saving the response data in CSV format
-import csv
-# For parsing the dates received from twitter in readable formats
-import datetime
-import dateutil.parser
-import unicodedata
 #To add wait time between requests
 import time
 import math
@@ -77,13 +65,10 @@ def connect_to_endpoint(url, headers, params, next_token = None):
         raise Exception(response.status_code, response.text)
     return response.json()
 
-nltk.download('stopwords')
-nltk.download('rslp')
 #Initialize the flask App
 app = Flask(__name__)
 CORS(app)
 app.config['DEBUG'] = True
-model = joblib.load('brimo_model.pkl')
 
 celery = make_celery(app)
 
@@ -117,12 +102,7 @@ def taskstatus(task_id):
         }
     return jsonify(response)
 ################# FLASK API ####################
-#default page of our web-app
-@app.route('/')
-def home():
-    return render_template('index.html')
 
-#To use the predict button in our web-app
 @app.route('/classify',methods=['POST'])
 def classify():
     request_data = request.get_json()
@@ -160,20 +140,8 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
         tweet = ' '.join(word for word in tweet.split(' ') if not word.startswith('@'))
         tweets_for_classify.append(tweet)
 
-    index = 0
-    distribuicao_tristeza = 0
-    distribuicao_alegria = 0
-    distribuicao_medo = 0
-    distribuicao_raiva = 0
-    distribuicao_surpresa = 0
-    distribuicao_nojo = 0
-    distribuicao_neutro = 0
-
-    #palavras = []
-    #sentimento_individual_array = []
     tweets_string = ""
     for tweet in tweets_for_classify:
-    #    index = index + 1
         tweet_without_special_chars = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
         tweets_string = tweets_string + tweet_without_special_chars + " "
         
@@ -187,170 +155,10 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     if responseCorpus.status_code != 200:
         raise Exception(responseCorpus.status_code, responseCorpus.text)
 
-  #      tweetStemming = []
-    #    stemmer = nltk.stem.RSLPStemmer()
-        #for(palavras_treinamento) in tweet_without_special_chars.split():
-       #     if palavras_treinamento not in lista_Stop:
-      #        palavras.append(palavras_treinamento)
-      #      comStem = [p for p in palavras_treinamento.split()]
-      #      tweetStemming.append(str(stemmer.stem(comStem[0])))
-            
-     #   novo = extrator_palavras(tweetStemming)
-#
-        #distribuicao = model.prob_classify(novo)
-       # output = ""
-        #distribuicao_individual = []
-        #for classe in distribuicao.samples():
-        #    if classe == "tristeza":
-       #         distribuicao_individual.append(("tristeza", distribuicao_tristeza))
-       #         distribuicao_tristeza = distribuicao_tristeza + distribuicao.prob(classe)
-        #    elif classe == "alegria":
-       #         distribuicao_individual.append(("alegria", distribuicao_alegria))
-       #         distribuicao_alegria = distribuicao_alegria + distribuicao.prob(classe)
-       #     elif classe == "medo":
-       #         distribuicao_individual.append(("medo", distribuicao_medo))
-        #        distribuicao_medo = distribuicao_medo + distribuicao.prob(classe)
-        #    elif classe == "raiva":
-        #        distribuicao_individual.append(("raiva", distribuicao_raiva))
-        #        distribuicao_raiva = distribuicao_raiva + distribuicao.prob(classe)
-        #    elif classe == "surpresa":
-         #       distribuicao_individual.append(("surpresa", distribuicao_surpresa))
-        #        distribuicao_surpresa = distribuicao_surpresa + distribuicao.prob(classe)
-        #    else:
-        #        distribuicao_individual.append(("nojo", distribuicao_nojo))
-        #        distribuicao_nojo = distribuicao_nojo + distribuicao.prob(classe)
-        #    if (distribuicao_alegria + distribuicao_medo + distribuicao_raiva + distribuicao_surpresa + distribuicao_nojo + distribuicao_tristeza) == 0:
-        #        distribuicao_neutro = distribuicao_neutro + 1.0
-    #
-      #  sentimento_individual = (tweetStemming, novo, distribuicao_individual)
-      #  sentimento_individual_array.append(sentimento_individual)
-
-   # total = distribuicao_alegria + distribuicao_medo + distribuicao_raiva + distribuicao_surpresa + distribuicao_nojo + distribuicao_tristeza
-   # if(index > 0):
-   #   distribuicao_nojo = ((distribuicao_nojo * 100) / total) / 100
-   #   distribuicao_raiva = ((distribuicao_raiva * 100) / total) / 100
-  ##    distribuicao_alegria = ((distribuicao_alegria * 100) / total) / 100
-  #    distribuicao_tristeza = ((distribuicao_tristeza * 100) / total) / 100
-  #    distribuicao_surpresa = ((distribuicao_surpresa * 100) / total) / 100
-   #   distribuicao_medo = ((distribuicao_medo * 100) / total) / 100
-  #    distribuicao_neutro = ((distribuicao_neutro * 100) / total) / 100
-#
-  #  output = {"tristeza": distribuicao_tristeza,
-  #    "nojo": distribuicao_nojo,
-  #    "alegria": distribuicao_alegria,
-  #    "surpresa": distribuicao_surpresa, 
-  #    "medo": distribuicao_medo, 
-  #    "raiva": distribuicao_raiva,
-  #    "neutro": distribuicao_neutro,
-  #    "tweets": tweets_for_classify,
-  #    "words": collections.Counter(palavras).most_common(30),
-  #    "total": total,
-  #    "analise_por_tweet": sentimento_individual_array
-   # }
     responseCorpus.json()
     output = {'classify': responseClassify.json(), 'corpus': collections.Counter(responseCorpus.json()[0].split()).most_common(30), 'tweets': tweets_for_classify}
     return {'status': 'Tweets prontos para análise!',
             'result': output}
-         
-    
-############## BRIMO #################
-def extrator_palavras(documento):
-    doc = set(documento)
-    caracteristicas = {}
-    for palavras in palavras_unicas_treinamento:
-        caracteristicas['%s' % palavras] = (palavras in doc)
-    return caracteristicas
-
-def busca_palavras_unicas(frequencia):
-    freq = frequencia.keys()
-    return freq
-
-def busca_frequencia(palavras):
-    palavras = nltk.FreqDist(palavras)
-    return palavras
-
-def busca_Palavras(frases):
-    todas_Palavras = []
-    for(palavras, sentimento) in frases:
-        todas_Palavras.extend(palavras)
-    return todas_Palavras
-
-def sentiment_Set(texto, words_emotions):
-    sent_counter = {'raiva': 0, 'tristeza': 0, 'nojo': 0, 'surpresa': 0, 'alegria': 0, 'medo': 0}
-    correct_sentiment_tweets = []
-    new_texto = []
-    for(palavras, sentimento) in texto:
-        for palavra in palavras:
-            for word in words_emotions:
-                if palavra == word['word']:
-                    sent_counter[word['emotion']]+= 1
-        
-        sentimento_new = max(sent_counter, key=sent_counter.get)
-        if sent_counter[sentimento_new] > 0:
-            if sent_counter[sentimento_new] > sent_counter[sentimento]:
-                  sentimento = sentimento_new
-        sent_counter = {'raiva': 0, 'tristeza': 0, 'nojo': 0, 'surpresa': 0, 'alegria': 0, 'medo': 0}
-        new_texto.append((palavras, sentimento))
-    return new_texto
-
-def aplica_Stemmer(texto):
-    stemmer = nltk.stem.RSLPStemmer()
-    # Escolhido o RSLPS pois é especifico da lingua portugesa
-    frases_sem_Stemming = []
-    for(palavras, sentimento) in texto:
-        com_Stemming = [str(stemmer.stem(p)) for p in palavras.split() if p not in lista_Stop]
-        frases_sem_Stemming.append((com_Stemming, sentimento))
-    return frases_sem_Stemming
-###########################
-emotions = ['raiva', 'nojo', 'alegria', 'medo', 'tristeza', 'surpresa'];
-with open('words_emotions.json') as f:
-    word_emotions = json.load(f)
-        
-stemmer = nltk.stem.RSLPStemmer()
-        
-format_word_emotions = []
-# Create json object with tweet and sentiment
-for word in word_emotions:
-    for emotion in emotions:
-        if word[emotion] == 1:
-            com_Stem = str(stemmer.stem(word['word']))
-            format_word_emotions.append({'word': com_Stem, 'emotion': emotion})
-###########################
-lista_Stop = nltk.corpus.stopwords.words('portuguese')
-
-sentiments = ['alegria', 'medo', 'tristeza', 'nojo', 'surpresa', 'raiva']
-base_treinamento = []
-
-for sentiment in sentiments:
-    inputjson_filename = '{sentiment_filename}.json'.format(sentiment_filename = sentiment)
-    outputjson_filename = '{sentiment_filename}_output.json'.format(sentiment_filename = sentiment)
-    
-    # Deserialize file to load json in data
-    with open(inputjson_filename) as f:
-        data = json.load(f)
-
-    # Filter python objects with list comprehensions
-    output_dict = [x for x in data if x['language'] == 'pt']
-
-    # Transform python object back into json
-    output_json = json.dumps(output_dict, ensure_ascii=False)
-
-    # Regex
-    pattern = r'(?<="tweet": )"(.*?)"'
-
-    # Get all regex matches
-    tweets = re.findall(pattern, output_json)
-    
-    for tweet in tweets:
-        tweet = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
-        tweet = ' '.join(word for word in tweet.split(' ') if not word.startswith('@'))
-        base_treinamento.append((tweet, sentiment))
-
-frases_com_Stem_treinamento = aplica_Stemmer(base_treinamento)
-frases_com_Stem_e_sentimentos_treinamento = sentiment_Set(frases_com_Stem_treinamento, format_word_emotions)
-palavras_treinamento = busca_Palavras(frases_com_Stem_e_sentimentos_treinamento)
-frequencia_treinamento = busca_frequencia(palavras_treinamento)
-palavras_unicas_treinamento = busca_palavras_unicas(frequencia_treinamento)
 
 if __name__ == "__main__":
     app.run(debug=True)
