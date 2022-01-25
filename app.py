@@ -155,8 +155,11 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     if responseCorpus.status_code != 200:
         raise Exception(responseCorpus.status_code, responseCorpus.text)
 
-    responseCorpus.json()
-    output = {'classify': responseClassify.json(), 'corpus': collections.Counter(responseCorpus.json()[0].split()).most_common(30), 'tweets': tweets_for_classify}
+    word_cloud_two_words = re.compile("\w+ \w+").split(responseCorpus.json()[0])
+    word_cloud_one_word = responseCorpus.json()[0].split()
+
+    word_cloud = word_cloud_two_words + word_cloud_one_word
+    output = {'classify': responseClassify.json(), 'corpus': collections.Counter(word_cloud).most_common(30), 'tweets': tweets_for_classify}
     return {'status': 'Tweets prontos para análise!',
             'result': output}
 
