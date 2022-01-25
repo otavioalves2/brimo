@@ -159,7 +159,7 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     word_cloud_one_word = responseCorpus.json()[0].split()
 
     word_cloud = word_cloud_two_words + word_cloud_one_word
-    output = {'classify': responseClassify.json(), 'corpus': collections.Counter(word_cloud).most_common(30), 'tweets': tweets_for_classify}
+    output = {'classify': responseClassify.json(), 'two': word_cloud_two_words, 'one': word_cloud_one_word, 'corpus': collections.Counter(word_cloud).most_common(30), 'tweets': tweets_for_classify}
     return {'status': 'Tweets prontos para análise!',
             'result': output}
 
