@@ -106,7 +106,7 @@ def taskstatus(task_id):
 @app.route('/classify',methods=['POST'])
 def classify():
     request_data = request.get_json()
-    task = get_tweets.apply_async([request_data['keyword'], request_data['language'], request_data['limit'], request_data['since'], request_data['until']])
+    task = get_tweets.apply_async([request_data['keyword'], request_data['language'], request_data['limit'], request_data['since'], request_data['until'], request_data['uploadedTweets']])
     return jsonify({"task_id":task.id}), 202, {'Location': url_for('taskstatus',
                                                   task_id=task.id)}
 
