@@ -112,28 +112,30 @@ def classify():
 
 ############## GET TWEETS ################
 @celery.task()
-def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
-    bearer_token = auth()
-    headers = create_headers(bearer_token)
-    keyword = keyword + ' lang:pt -is:retweet -has:links -has:media'
-    max_results = limitValue if (limitValue <= 100) else 100
+def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue, uploadedTweetsArray = None):
+    if(uploadedTweetsArray == None):
+      bearer_token = auth()
+      headers = create_headers(bearer_token)
+      keyword = keyword + ' lang:pt -is:retweet -has:links -has:media'
+      max_results = limitValue if (limitValue <= 100) else 100
 
-    next_token = None
-    loopLength = int(math.ceil(limitValue / 100))
+      next_token = None
+      loopLength = int(math.ceil(limitValue / 100))
 
-    tweets = []
-    tweets_for_classify = []
+      tweets = []
+      tweets_for_classify = []
 
-    for x in range(loopLength):
-      url = create_url(keyword, max_results, sinceValue, untilValue)
-      json_response = connect_to_endpoint(url[0], headers, url[1], next_token)
-      for tweetObj in json_response["data"]:
-        tweets.append(tweetObj["text"])
-      if 'next_token' in json_response['meta']:
-        next_token = json_response['meta']['next_token']
+      for x in range(loopLength):
+        url = create_url(keyword, max_results, sinceValue, untilValue)
+        json_response = connect_to_endpoint(url[0], headers, url[1], next_token)
+        for tweetObj in json_response["data"]:
+          tweets.append(tweetObj["text"])
+        if 'next_token' in json_response['meta']:
+          next_token = json_response['meta']['next_token']
+          time.sleep(5)
         time.sleep(5)
-      time.sleep(5)
-    
+    else:
+      tweets = uploadedTweetsArray
     
     for tweet in tweets:
         tweet = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
