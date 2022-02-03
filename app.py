@@ -155,7 +155,7 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue):
     if responseCorpus.status_code != 200:
         raise Exception(responseCorpus.status_code, responseCorpus.text)
 
-    output = {'classify': responseClassify.json(), 'corpus': collections.Counter(responseCorpus.json()[0].split()).most_common(100), 'tweets': tweets_for_classify}
+    output = {'classify': responseClassify.json(), 'corpus': collections.Counter(responseCorpus.json()[0].split()).most_common(30), 'tweets': tweets_for_classify}
     return {'status': 'Tweets prontos para análise!',
             'result': output}
 
