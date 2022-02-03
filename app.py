@@ -113,6 +113,8 @@ def classify():
 ############## GET TWEETS ################
 @celery.task()
 def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue, uploadedTweetsArray):
+    tweets = []
+    tweets_for_classify = []
     if(uploadedTweetsArray == ""):
       bearer_token = auth()
       headers = create_headers(bearer_token)
@@ -121,9 +123,6 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue, uploadedT
 
       next_token = None
       loopLength = int(math.ceil(limitValue / 100))
-
-      tweets = []
-      tweets_for_classify = []
 
       for x in range(loopLength):
         url = create_url(keyword, max_results, sinceValue, untilValue)
