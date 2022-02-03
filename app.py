@@ -112,8 +112,8 @@ def classify():
 
 ############## GET TWEETS ################
 @celery.task()
-def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue, uploadedTweetsArray = None):
-    if(uploadedTweetsArray == None):
+def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue, uploadedTweetsArray):
+    if(uploadedTweetsArray == ""):
       bearer_token = auth()
       headers = create_headers(bearer_token)
       keyword = keyword + ' lang:pt -is:retweet -has:links -has:media'
@@ -135,7 +135,7 @@ def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue, uploadedT
           time.sleep(5)
         time.sleep(5)
     else:
-      tweets = uploadedTweetsArray
+      tweets = uploadedTweetsArray.split(',')
     
     for tweet in tweets:
         tweet = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', tweet)
