@@ -109,7 +109,27 @@ def classify():
     task = get_tweets.apply_async([request_data['keyword'], request_data['language'], request_data['limit'], request_data['since'], request_data['until'], request_data['uploadedTweets']])
     return jsonify({"task_id":task.id}), 202, {'Location': url_for('taskstatus',
                                                   task_id=task.id)}
+                                                  
+@app.route('/classify/text',methods=['POST'])
+def analysis_from_text():
+    request_data = request.get_json()
+    text = request_data['text']
+    text = re.sub(u'[^a-zA-Z0-9áéíóúÁÉÍÓÚâêîôÂÊÎÔãõÃÕçÇ: ]', '', text)
+    text = ' '.join(word for word in text.split(' ') if not word.startswith('@'))
+        
+    responseClassify = requests.post('https://brimo-r.herokuapp.com/classify', data={'tweets': text})
+    print("Endpoint Response Code: " + str(responseClassify.status_code))
+    if responseClassify.status_code != 200:
+        raise Exception(responseClassify.status_code, responseClassify.text)
+    
+    responseCorpus = requests.post('https://brimo-r.herokuapp.com/corpus', data={'tweets': text})
+    print("Endpoint Response Code: " + str(responseCorpus.status_code))
+    if responseCorpus.status_code != 200:
+        raise Exception(responseCorpus.status_code, responseCorpus.text)
 
+    output = {'classify': responseClassify.json(), 'corpus': collections.Counter(responseCorpus.json()[0].split()).most_common(30), 'tweets': text}
+    return {'status': 'Tweets prontos para análise!',
+            'result': output}
 ############## GET TWEETS ################
 @celery.task()
 def get_tweets(keyword, langValue, limitValue, sinceValue, untilValue, uploadedTweetsArray):
